@@ -5,16 +5,20 @@ import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    minWidth: '300px',
     justifyContent: 'center',
     margin: '100px auto',
-    height: '300px',
+    padding: '12px',
     width: '300px',
   },
-  '@media (max-width: 600px)': {
-    root: {
-      height: '300px',
-      width: '200px',
-    },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    gap: '18px',
+  },
+  button: {
+    height: '56px',
   },
 }));
 
@@ -58,11 +62,11 @@ export default function Login() {
 
   const checkPasswordFormat = (password) => {
     console.log('checkPasswordFormat: ', password);
-    if (password.trim().length === 0) {
-      setPasswordError(true);
-      setPasswordHelperText('Password is required');
-      return false;
-    }
+    // if (password.trim().length === 0) {
+    //   setPasswordError(true);
+    //   setPasswordHelperText('Password is required');
+    //   return false;
+    // }
     if (password.match(passwordRegex) === null) {
       setPasswordError(true);
       setPasswordHelperText('Password format error: only letters and numbers are allowed');
@@ -125,7 +129,14 @@ export default function Login() {
           variant="outlined"
           color="primary"
         />
-        <Button id="login-sign-in-button" className={classes.submitButton} type="submit" variant="contained" color="primary">Login</Button>
+        <Button id="login-sign-in-button" className={classes.button}
+          type="submit"
+          disabled={email.length === 0 || password.length === 0}
+          variant="contained"
+          color="primary"
+        >
+          Login
+        </Button>
       </form>
     </div>
   );
