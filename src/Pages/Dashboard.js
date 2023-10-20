@@ -53,20 +53,17 @@ const rows = [
 export default function Dashboard() {
   const classes = useStyles();
 
-  const loginSuccess = sessionStorage.getItem('loginSuccess');
-
-  if (loginSuccess !== 'true') {
+  const loginSuccess = sessionStorage.getItem('user') !== null;
+  if (!loginSuccess) {
     window.location.href = '/login';
-    return (
-      <h3>Checking Authority...</h3>
-    );
+    return null;
   }
 
   return (
     <div className={classes.root}>
       <div className={classes.tableArea}>
         <TableContainer component={Paper}>
-          <Table className={classes.dataTable}>
+          <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Dessert (100g serving)</TableCell>

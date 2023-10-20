@@ -31,15 +31,13 @@ export default function Login() {
   const [passwordHelperText, setPasswordHelperText] = React.useState('');
   const classes = useStyles();
 
-  const loginSuccess = sessionStorage.getItem('loginSuccess');
+  const loginSuccess = sessionStorage.getItem('user') !== null;
   const emailRegex = '^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$';
   const passwordRegex = '^[a-zA-Z0-9]+$';
 
-  if (loginSuccess === 'true') {
+  if (loginSuccess) {
     window.location.href = '/dashboard';
-    return (
-      <h3>Checking Authority...</h3>
-    );
+    return null;
   }
 
   const checkEmailFormat = (email) => {
@@ -86,6 +84,7 @@ export default function Login() {
 
     if (validEmail && validPassword) {
       sessionStorage.setItem('loginSuccess', 'true');
+      sessionStorage.setItem('user', email);
       window.location.href = '/dashboard';
     }
   };
