@@ -23,16 +23,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Login() {
-  const [email, setEmail] = React.useState('');
+  const emailRef = React.useRef(null);
+  const passwordRef = React.useRef(null);
   const [emailError, setEmailError] = React.useState(false);
   const [emailHelperText, setEmailHelperText] = React.useState('');
-  const [password, setPassword] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordHelperText, setPasswordHelperText] = React.useState('');
   const classes = useStyles();
 
   const loginSuccess = sessionStorage.getItem('user') !== null;
   const emailRegex = '^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$';
+  // EMAIL_REGEX_BY_CHATGPT = /^(?:(?:(?:(?:[a-zA-Z]|\d|[!#\$\%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(?:\.([a-zA-Z]|\d|[!#\$\%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|(?:(?:\x22)(?:(?:(?:(?:\x20|\x09)*(?:\x0d\x0a))?(?:\x20|\x09)+)?(?:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(?:(?:(?:\x20|\x09)*(?:\x0d\x0a))?(\x20|\x09)+)?(?:\x22))))@(?:(?:(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])(?:[a-zA-Z]|\d|-|\.|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(?:(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])(?:[a-zA-Z]|\d|-|\.|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/;
   const passwordRegex = '^[a-zA-Z0-9]+$';
 
   if (loginSuccess) {
@@ -78,7 +79,10 @@ export default function Login() {
 
   const handleLogin = (event) => {
     event.preventDefault();
-    console.log('Login');
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+    console.log('Login', {email}, {password});
+
     const validEmail = checkEmailFormat(email);
     const validPassword = checkPasswordFormat(password);
 
@@ -91,12 +95,12 @@ export default function Login() {
 
   const handleEmailChange = (event) => {
     console.log('Email: ', event.target.value);
-    setEmail(event.target.value);
+    // if checking format when onChange, implement here
   };
 
   const handlePasswordChange = (event) => {
     console.log('Password: ', event.target.value);
-    setPassword(event.target.value);
+    // if checking format when onChange, implement here
   };
 
   return (
@@ -110,7 +114,7 @@ export default function Login() {
           onChange={handleEmailChange}
           // required
           // type="email"
-          value={email}
+          inputRef={emailRef}
           error={emailError}
           helperText={emailHelperText}
           variant="outlined"
@@ -122,7 +126,7 @@ export default function Login() {
           onChange={handlePasswordChange}
           // required
           type="password"
-          value={password}
+          inputRef={passwordRef}
           error={passwordError}
           helperText={passwordHelperText}
           variant="outlined"
@@ -130,7 +134,6 @@ export default function Login() {
         />
         <Button id="login-sign-in-button" className={classes.button}
           type="submit"
-          disabled={email.length === 0 || password.length === 0}
           variant="contained"
           color="primary"
         >
