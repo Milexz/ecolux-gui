@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
+import { useUserInfo } from '../Contexts/GlobalContext';
+import { ACTIONS as USER_ACTIONS } from '../Reducers/UserInfoReducer';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: '300px',
@@ -23,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Login() {
+  const [user, dispatchUserInfo] = useUserInfo();
   const emailRef = React.useRef(null);
   const passwordRef = React.useRef(null);
   const [emailError, setEmailError] = React.useState(false);
@@ -31,10 +35,13 @@ export default function Login() {
   const [passwordHelperText, setPasswordHelperText] = React.useState('');
   const classes = useStyles();
 
-  const loginSuccess = sessionStorage.getItem('user') !== null;
   const emailRegex = '^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$';
   // EMAIL_REGEX_BY_CHATGPT = /^(?:(?:(?:(?:[a-zA-Z]|\d|[!#\$\%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(?:\.([a-zA-Z]|\d|[!#\$\%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|(?:(?:\x22)(?:(?:(?:(?:\x20|\x09)*(?:\x0d\x0a))?(?:\x20|\x09)+)?(?:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(?:(?:(?:\x20|\x09)*(?:\x0d\x0a))?(\x20|\x09)+)?(?:\x22))))@(?:(?:(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])(?:[a-zA-Z]|\d|-|\.|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*(?:[a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(?:(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(?:(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])(?:[a-zA-Z]|\d|-|\.|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*(?:[a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/;
   const passwordRegex = '^[a-zA-Z0-9]+$';
+
+  const loginSuccess = React.useMemo(() => {
+    return user.email !== '';
+  }, [user]);
 
   if (loginSuccess) {
     window.location.href = '/dashboard';
@@ -61,11 +68,11 @@ export default function Login() {
 
   const checkPasswordFormat = (password) => {
     console.log('checkPasswordFormat: ', password);
-    // if (password.trim().length === 0) {
-    //   setPasswordError(true);
-    //   setPasswordHelperText('Password is required');
-    //   return false;
-    // }
+    if (password.trim().length === 0) {
+      setPasswordError(true);
+      setPasswordHelperText('Password is required');
+      return false;
+    }
     if (password.match(passwordRegex) === null) {
       setPasswordError(true);
       setPasswordHelperText('Password format error: only letters and numbers are allowed');
@@ -74,6 +81,11 @@ export default function Login() {
     
     setPasswordError(false);
     setPasswordHelperText('');
+    return true;
+  };
+
+  const checkAuthority = (email, password) => {
+    // should check by API
     return true;
   };
 
@@ -87,8 +99,15 @@ export default function Login() {
     const validPassword = checkPasswordFormat(password);
 
     if (validEmail && validPassword) {
-      sessionStorage.setItem('loginSuccess', 'true');
-      sessionStorage.setItem('user', email);
+      const validUser = checkAuthority(email, password);
+      if (validUser === false) {
+        setPasswordError(true);
+        setPasswordHelperText('Password is incorrect');
+        return;
+      }
+
+      const username = email.split('@')[0];
+      dispatchUserInfo({type: USER_ACTIONS.SET_USER, payload: {name: username, email: email}});
       window.location.href = '/dashboard';
     }
   };

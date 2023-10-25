@@ -7,8 +7,9 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+import { useUserInfo } from '../Contexts/GlobalContext';
 
 
 const useStyles = makeStyles({
@@ -51,9 +52,14 @@ const rows = [
 ];
 
 export default function Dashboard() {
+  const [user, ] = useUserInfo();
   const classes = useStyles();
 
-  const loginSuccess = sessionStorage.getItem('user') !== null;
+  const loginSuccess = React.useMemo(() => {
+    console.log('test-memo')
+    return user.email !== '';
+  }, [user]);
+
   if (!loginSuccess) {
     window.location.href = '/login';
     return null;

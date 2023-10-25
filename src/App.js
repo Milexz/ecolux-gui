@@ -11,6 +11,8 @@ import {
 } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 
+import { GlobalStoreProvider, useUserInfo } from './Contexts/GlobalContext';
+import { ACTIONS as USER_ACTIONS } from './Reducers/UserInfoReducer';
 import Login from './Pages/Login';
 import Dashboard from './Pages/Dashboard';
 import NotFound from './Pages/NotFound';
@@ -28,25 +30,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function App() {
-  const [user, setUser] = React.useState(null);
+  const [user, dispatchUserInfo] = useUserInfo();
   const classes = useStyles();
 
-  React.useEffect(() => {
-    const _user = sessionStorage.getItem('user')?.split('@')[0];
-    setUser(_user);
-  }, []);
-
   const handleLogoutClicked = () => {
-    sessionStorage.removeItem('user');
-    setUser(null);
+    dispatchUserInfo({type: USER_ACTIONS.LOGOUT});
   };
 
   return (
     <div className="App">
       <header className={clsx("App-header", classes.header)}>
         <p>Simple React App for ECOLUX</p>
-        {user &&
-          <Button className={classes.logoutButton} onClick={handleLogoutClicked}>{`Hi ${user}, Logout`}</Button>
+        {user.name !== '' &&
+          <Button className={classes.logoutButton} onClick={handleLogoutClicked}>{`Hi ${user.name}, Logout`}</Button>
         }
       </header>
       <main className="App-main">
@@ -68,4 +64,12 @@ function App() {
   );
 }
 
-export default App;
+function AppWithGlobalStore() {
+  return (
+    <GlobalStoreProvider>
+      <App />
+    </GlobalStoreProvider>
+  );
+}
+
+export default AppWithGlobalStore;
